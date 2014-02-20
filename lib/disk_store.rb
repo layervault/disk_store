@@ -38,6 +38,7 @@ class DiskStore
       File.delete(file_path)
       delete_empty_directories(File.dirname(file_path))
     end
+    true
   end
 
   def fetch(key)

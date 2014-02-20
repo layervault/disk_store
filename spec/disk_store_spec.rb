@@ -52,7 +52,7 @@ describe DiskStore do
     it "deletes the file from disk" do
       cache.write(key, file)
       expect{
-        cache.delete(key)
+        expect(cache.delete(key)).to be_true
       }.to change{ Dir[File.join(@tmpdir, "**/*")].size }.by(-3)
     end
   end
