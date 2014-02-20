@@ -1,7 +1,10 @@
 # DiskStore
 
-DiskStore is a way of caching large files to disk in a Ruby (and perhaps Rails) like manner.
-Rather than passing around strings though, DiskStore passing around Ruby `IO` objects.
+DiskStore is a way of caching large files to disk in Ruby. Unlike ActiveSupport::Cache::Store,
+which is designed primarily for storing values of strings, DiskStore is meant for
+caching files to disk.
+
+DiskStore stores the files on disk in a very similar way to Rails' [ActiveSupport::Cache::FileStore](http://api.rubyonrails.org/classes/ActiveSupport/Cache/FileStore.html).
 
 ## Installation
 
@@ -11,17 +14,20 @@ gem 'disk_store'
 
 ## Usage
 
-You should use this in a similar way that you would use most Ruby caching libraries. Instead 
+You should use this in a similar way that you would use most Ruby caching libraries. Instead
 of passing around string values to cache, you should pass around IO objects. Here are a few
 examples.
 
 ### Setup
 
-DiskStore requires a directory to to store the files. It stores the files on disk in a very 
-similar way to Rails' ActiveSupport::Cache::FileStore.
+DiskStore requires a directory to to store the files.
 
 It takes a single parameter, which is the directory at which to store the cached files.
 If no parameter is specified, it uses the current directory.
+
+```ruby
+cache = DiskStore.new("path/to/my/cache/directory")
+```
 
 ### Reading
 
@@ -41,16 +47,17 @@ cache.write("my_cache_key", File.open('file.psd', 'r'))
 
 ```ruby
 cache = DiskStore.new
-cache.fetch("my_cache_key") do 
+cache.fetch("my_cache_key") do
   File.open('file.psd', 'r')
 end
 ```
 
 This is where it gets cool. You can also feed it other IO classes.
+Here we cache the result of a file download onto disk.
 
 ```ruby
 cache = DiskStore.new
-cache.fetch("my_other_cache_key") do 
+cache.fetch("my_other_cache_key") do
   open("https://layervault.com/cats.gif")
 end
 ```
