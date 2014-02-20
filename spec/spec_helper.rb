@@ -1,5 +1,7 @@
 require File.expand_path './lib/disk_store'
 require 'rspec'
+require 'tempfile'
+require 'tmpdir'
 require 'vcr'
 
 VCR.configure do |c|

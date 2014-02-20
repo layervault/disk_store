@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "rake"
 
   gem.test_files = Dir.glob("spec/**/*")
+  gem.add_development_dependency "multi_json"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "vcr"
   gem.add_development_dependency "webmock"

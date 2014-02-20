@@ -11,6 +11,7 @@ GEM
     crack (0.4.1)
       safe_yaml (~> 0.9.0)
     diff-lcs (1.2.5)
+    multi_json (1.8.4)
     rake (10.1.1)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
@@ -31,6 +32,7 @@ PLATFORMS
 
 DEPENDENCIES
   disk_store!
+  multi_json
   rspec
   vcr
   webmock
