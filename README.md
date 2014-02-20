@@ -40,7 +40,7 @@ cached_file = cache.read("my_cache_key") #=> File.open('somewhere_on_disk')
 
 ```ruby
 cache = DiskStore.new
-cache.write("my_cache_key", File.open('file.psd', 'r'))
+cache.write("my_cache_key", File.open('file.psd', 'rb'))
 ```
 
 ### Fetching
@@ -48,7 +48,7 @@ cache.write("my_cache_key", File.open('file.psd', 'r'))
 ```ruby
 cache = DiskStore.new
 cache.fetch("my_cache_key") do
-  File.open('file.psd', 'r')
+  File.open('file.psd', 'rb')
 end
 ```
 
