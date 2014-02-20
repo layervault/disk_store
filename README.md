@@ -1,5 +1,7 @@
 # DiskStore
 
+[![Travis CI](https://travis-ci.org/layervault/disk_store.png?branch=master)](https://travis-ci.org/layervault/disk_store)
+
 DiskStore is a way of caching large files to disk in Ruby. Unlike ActiveSupport::Cache::Store,
 which is designed primarily for storing values of strings, DiskStore is meant for
 caching files to disk.
