@@ -17,7 +17,15 @@ class DiskStore
   def write(key, io)
     file_path = key_file_path(key)
     ensure_cache_path(File.dirname(file_path))
-    IO::copy_stream(io, File.open(file_path, 'wb'))
+
+    File.open(file_path, 'wb') do |f|
+      begin
+        f.flock File::LOCK_EX
+        IO::copy_stream(io, f)
+      ensure
+        f.flock File::LOCK_UN
+      end
+    end
   end
 
   def exist?(key)
