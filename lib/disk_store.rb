@@ -23,6 +23,9 @@ class DiskStore
         f.flock File::LOCK_EX
         IO::copy_stream(io, f)
       ensure
+        # We need to make sure that any data written makes it to the disk.
+        # http://stackoverflow.com/questions/6701103/understanding-ruby-and-os-i-o-buffering
+        f.fsync
         f.flock File::LOCK_UN
       end
     end
