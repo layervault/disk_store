@@ -1,13 +1,20 @@
 require 'open-uri'
+require 'disk_store/reaper'
 
 class DiskStore
   DIR_FORMATTER = "%03X"
   FILENAME_MAX_SIZE = 228 # max filename size on file system is 255, minus room for timestamp and random characters appended by Tempfile (used by atomic write)
   EXCLUDED_DIRS = ['.', '..'].freeze
 
-  def initialize(path=nil)
+  attr_reader :reaper
+
+  def initialize(path=nil, opts = {})
     path ||= "."
     @root_path = File.expand_path path
+    @options = opts
+    @reaper = nil
+
+    spawn_reaper!
   end
 
   def read(key)
@@ -59,6 +66,10 @@ class DiskStore
   end
 
 private
+
+  def spawn_reaper!
+    @reaper = Reaper.spawn_for(@root_path, @options)
+  end
 
   # These methods were borrowed mostly from ActiveSupport::Cache::FileStore
 
