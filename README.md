@@ -24,11 +24,34 @@ examples.
 
 DiskStore requires a directory to to store the files.
 
-It takes a single parameter, which is the directory at which to store the cached files.
-If no parameter is specified, it uses the current directory.
+It has two parameters:
+
+* The first is the path to the cache directory. If no directory is given, then the current directory is used.
+* The second is an options hash that controls the Reaper. More info below.
 
 ```ruby
 cache = DiskStore.new("path/to/my/cache/directory")
+```
+
+#### Reaper
+
+By default, DiskStore does not perform any evictions on files in the cache. Be careful with this, becasue
+it can cause your disk to fill up if left to it's own means.
+
+The reaper configuration includes:
+
+* `cache_size`: The maximum size of the cache before the reaper begins to evict files.
+* `reaper_interval`: How often the reaper will check for files to evict (in seconds).
+* `eviction_strategy`: Sets how the reaper will determine which files to evict.
+
+Current available eviction strategies are:
+
+* LRU (least recently used) - deletes the files with the oldest last access time
+
+To configure DiskStore with an LRU eviction strategy:
+
+``` ruby
+cache = DiskStore.new('cache/dir', eviction_strategy: :LRU)
 ```
 
 ### Reading
