@@ -12,9 +12,7 @@ class DiskStore
     path ||= "."
     @root_path = File.expand_path path
     @options = opts
-    @reaper = nil
-
-    spawn_reaper!
+    @reaper = Reaper.spawn_for(@root_path, @options)
   end
 
   def read(key)
@@ -66,10 +64,6 @@ class DiskStore
   end
 
 private
-
-  def spawn_reaper!
-    @reaper = Reaper.spawn_for(@root_path, @options)
-  end
 
   # These methods were borrowed mostly from ActiveSupport::Cache::FileStore
 
