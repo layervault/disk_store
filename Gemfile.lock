@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    disk_store (0.2.0)
+    disk_store (0.2.1)
       rake
 
 GEM
