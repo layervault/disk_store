@@ -42,11 +42,11 @@ class DiskStore
     end
 
     def alive?
-      @thread.alive?
+      @thread && @thread.alive?
     end
 
     def running?
-      !@thread.stop?
+      @thread && !@thread.stop?
     end
 
     private
