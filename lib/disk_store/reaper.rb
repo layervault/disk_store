@@ -18,7 +18,13 @@ class DiskStore
       reaper
     end
 
-    attr_reader :path
+    # Mostly useful for testing purposes
+    def self.kill_all!
+      @reapers.each { |path, reaper| reaper.thread.kill }
+      @reapers = {}
+    end
+
+    attr_reader :path, :thread
 
     def initialize(path, opts = {})
       @path = path
@@ -35,6 +41,10 @@ class DiskStore
       end
     end
 
+    def alive?
+      @thread.alive?
+    end
+
     def running?
       !@thread.stop?
     end
@@ -42,6 +52,15 @@ class DiskStore
     private
 
     def perform_sweep!
+      # Evict and delete selected files
+      files_to_evict.each { |file| FileUtils.rm(file[:path]) }
+    end
+
+    def needs_eviction?
+      current_cache_size > maximum_cache_size
+    end
+
+    def files_to_evict
       # Collect and sort files based on last access time
       sorted_files = files
         .map { |file|
@@ -59,17 +78,11 @@ class DiskStore
       evictions = []
       while space_evicted < space_to_evict
         evicted_file = sorted_files.shift
-        puts "Evicting: #{evicted_file}"
         space_evicted += evicted_file[:size]
         evictions << evicted_file
       end
 
-      # Evict and delete selected files
-      evictions.each { |file| FileUtils.rm(file[:path]) }
-    end
-
-    def needs_eviction?
-      current_cache_size > maximum_cache_size
+      evictions
     end
 
     def wait_for_next
