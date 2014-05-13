@@ -40,7 +40,7 @@ it can cause your disk to fill up if left to its own means.
 
 The reaper configuration includes:
 
-* `cache_size`: The maximum size of the cache before the reaper begins to evict files.
+* `cache_size`: The maximum size of the cache before the reaper begins to evict files (in bytes).
 * `reaper_interval`: How often the reaper will check for files to evict (in seconds).
 * `eviction_strategy`: Sets how the reaper will determine which files to evict.
 
