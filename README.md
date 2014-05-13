@@ -35,8 +35,8 @@ cache = DiskStore.new("path/to/my/cache/directory")
 
 #### Reaper
 
-By default, DiskStore does not perform any evictions on files in the cache. Be careful with this, becasue
-it can cause your disk to fill up if left to it's own means.
+By default, DiskStore does not perform any evictions on files in the cache. Be careful with this, because
+it can cause your disk to fill up if left to its own means.
 
 The reaper configuration includes:
 
