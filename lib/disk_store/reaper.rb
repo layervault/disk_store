@@ -1,8 +1,11 @@
+Dir[File.join(File.dirname(__FILE__), "eviction_strategies", "*.rb")].each { |f| require f }
+
 class DiskStore
   class Reaper
     DEFAULT_OPTS = {
       cache_size: 1073741824, # 1 gigabyte
-      reaper_interval: 10 # seconds
+      reaper_interval: 10, # seconds,
+      eviction_strategy: :LRU
     }
 
     @reapers = {}
@@ -30,6 +33,13 @@ class DiskStore
       @path = path
       @options = DEFAULT_OPTS.merge(opts)
       @thread = nil
+
+      set_eviction_strategy(@options[:eviction_strategy])
+    end
+
+    def set_eviction_strategy(strategy)
+      return if strategy.nil?
+      self.class.send :prepend, DiskStore::Reaper.const_get(strategy)
     end
 
     def spawn!
@@ -62,28 +72,11 @@ class DiskStore
     end
 
     def files_to_evict
-      # Collect and sort files based on last access time
-      sorted_files = files
-        .map { |file|
-          data = nil
-          File.new(file, 'rb').tap { |fd|
-            data = { path: file, last_fetch: fd.atime, size: fd.size }
-          }.close
-          data
-        }
-        .sort { |a, b| a[:last_fetch] <=> b[:last_fetch] } # Oldest first
+      []
+    end
 
-      # Determine which files to evict
-      space_to_evict = current_cache_size - maximum_cache_size
-      space_evicted = 0
-      evictions = []
-      while space_evicted < space_to_evict
-        evicted_file = sorted_files.shift
-        space_evicted += evicted_file[:size]
-        evictions << evicted_file
-      end
-
-      evictions
+    def directories_to_evict
+      []
     end
 
     def wait_for_next
@@ -101,7 +94,6 @@ class DiskStore
     def empty_directories
       directories.select { |d| Dir.entries(d).size == 2 }
     end
-    alias_method :directories_to_evict, :empty_directories
 
     def current_cache_size
       files.map { |file| File.new(file).size }.inject { |sum, size| sum + size } || 0
