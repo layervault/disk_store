@@ -5,7 +5,7 @@ class DiskStore
     DEFAULT_OPTS = {
       cache_size: 1073741824, # 1 gigabyte
       reaper_interval: 10, # seconds,
-      eviction_strategy: :LRU
+      eviction_strategy: nil
     }
 
     @reapers = {}

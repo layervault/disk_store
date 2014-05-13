@@ -63,9 +63,9 @@ describe DiskStore::Reaper do
     end
   end
 
-  describe 'eviction' do
+  describe 'LRU eviction' do
     context 'when below the cache size' do
-      let (:cache) { DiskStore.new(@tmpdir, cache_size: 1073741824) }
+      let (:cache) { DiskStore.new(@tmpdir, eviction_strategy: :LRU, cache_size: 1073741824) }
 
       before(:each) do
         cache.write key, file
@@ -81,7 +81,7 @@ describe DiskStore::Reaper do
       let(:file2) { Tempfile.new("Friends are magical.psd") }
       let(:key2) { "friend" }
 
-      let (:cache) { DiskStore.new(@tmpdir, cache_size: file_contents.size + 1) }
+      let (:cache) { DiskStore.new(@tmpdir, eviction_strategy: :LRU, cache_size: file_contents.size + 1) }
       let (:reaper) { cache.reaper }
 
       before(:each) do
