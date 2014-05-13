@@ -57,6 +57,10 @@ describe DiskStore::Reaper do
       expect(reaper.send(:files).size).to eq 1
       expect(File.read(reaper.send(:files).first)).to eq file_contents
     end
+
+    it "finds all directories" do
+      expect(reaper.send(:directories).size).to eq 2
+    end
   end
 
   describe 'eviction' do
@@ -106,9 +110,19 @@ describe DiskStore::Reaper do
 
       it "removes the file during eviction" do
         reaper.send(:perform_sweep!)
-        
+
         expect(reaper.send(:files).size).to eq 1
         expect(File.read(reaper.send(:files).first)).to eq file2_contents
+      end
+
+      it "correctly determines empty directories" do
+        reaper.send(:files).each { |f| FileUtils.rm(f) }
+        expect(reaper.send(:empty_directories).size).to eq 2
+      end
+
+      it "removes empty directories during eviction" do
+        2.times { reaper.send(:perform_sweep!) }
+        expect(reaper.send(:empty_directories).size).to eq 0
       end
     end
   end

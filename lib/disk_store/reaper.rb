@@ -54,6 +54,7 @@ class DiskStore
     def perform_sweep!
       # Evict and delete selected files
       files_to_evict.each { |file| FileUtils.rm(file[:path]) }
+      directories_to_evict.each { |dir| Dir.rmdir(dir) }
     end
 
     def needs_eviction?
@@ -92,6 +93,15 @@ class DiskStore
     def files
       Dir[File.join(path, "**", "*")].select { |f| File.file?(f) }
     end
+
+    def directories
+      Dir[File.join(path, "**", "*")].select { |f| File.directory?(f) }
+    end
+
+    def empty_directories
+      directories.select { |d| Dir.entries(d).size == 2 }
+    end
+    alias_method :directories_to_evict, :empty_directories
 
     def current_cache_size
       files.map { |file| File.new(file).size }.inject { |sum, size| sum + size } || 0
