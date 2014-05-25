@@ -5,11 +5,8 @@ class DiskStore
         # Collect and sort files based on last access time
         sorted_files = files
           .map { |file|
-            data = nil
-            File.new(file, 'rb').tap { |fd|
-              data = { path: file, last_fetch: fd.atime, size: fd.size }
-            }.close
-            data
+            st = File.stat(file)
+            { path: file, last_fetch: st.atime, size: st.size }
           }
           .sort { |a, b| a[:last_fetch] <=> b[:last_fetch] } # Oldest first
 
