@@ -96,7 +96,7 @@ class DiskStore
     end
 
     def current_cache_size
-      files.map { |file| File.size(file) }.inject { |sum, size| sum + size } || 0
+      files.inject(0) { |sum, file| sum + File.size(file) }
     end
 
     def maximum_cache_size
