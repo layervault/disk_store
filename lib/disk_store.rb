@@ -1,4 +1,3 @@
-require 'open-uri'
 require 'disk_store/reaper'
 
 class DiskStore
