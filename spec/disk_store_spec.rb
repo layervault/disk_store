@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe DiskStore do
   let(:cache) { DiskStore.new @tmpdir }
-  let(:file_contents) { "Hello, Doge" }
+  let(:file_contents) { SecureRandom.random_bytes(8192) }
   let(:file) { Tempfile.new("My Temp File.psd") }
   let(:key) { "doge" }
 
@@ -14,6 +14,7 @@ describe DiskStore do
   end
 
   before(:each) do
+    file.binmode
     file.write file_contents
     file.flush
   end
@@ -44,7 +45,7 @@ describe DiskStore do
       }.to change{ Dir[File.join(@tmpdir, "**/*")].size }.by(3)
 
       file_path = Dir[File.join(@tmpdir, "**/*")].last
-      expect(File.read(file_path)).to eq file_contents
+      expect(File.binread(file_path)).to eq file_contents
     end
   end
 
@@ -64,21 +65,6 @@ describe DiskStore do
       expect(cache.exist?(key)).to be_true
       cache.delete(key)
       expect(cache.exist?(key)).to be_false
-    end
-  end
-
-  context "web resources", :vcr do
-    let(:url) { "http://media.giphy.com/media/KXD1pSzGb3Khi/giphy.gif" }
-    let(:key) { "lolololol" }
-
-    it "should cache the result of a web resource in a file" do
-      expect(cache.exist?(key)).to be_false
-
-      cache.fetch(key) do
-        open(url)
-      end
-
-      expect(cache.read(key).read).to eq open(url).read
     end
   end
 end
