@@ -6,6 +6,9 @@ describe DiskStore::Reaper do
   let(:key) { "doge" }
 
   before(:each) do
+    @reaper = nil
+    DiskStore::Reaper.stub(:spawn_for) { |path, opts| @reaper ||= DiskStore::Reaper.new(path, opts) }
+
     file.write file_contents
     file.flush
     file.rewind
@@ -16,10 +19,6 @@ describe DiskStore::Reaper do
       @tmpdir = tmpdir
       example.run
     end
-  end
-
-  after(:each) do
-    DiskStore::Reaper.kill_all!
   end
 
   it 'is spawned with a new cache' do
@@ -85,9 +84,6 @@ describe DiskStore::Reaper do
       let (:reaper) { cache.reaper }
 
       before(:each) do
-        # Kill the thread so we can test without it getting
-        # in the way
-        reaper.thread.kill
         cache.write key, file
 
         file2.write file2_contents

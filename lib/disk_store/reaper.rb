@@ -1,7 +1,11 @@
+require 'celluloid'
+
 Dir[File.join(File.dirname(__FILE__), "eviction_strategies", "*.rb")].each { |f| require f }
 
 class DiskStore
   class Reaper
+    include Celluloid
+
     DEFAULT_OPTS = {
       cache_size: 1073741824, # 1 gigabyte
       reaper_interval: 10, # seconds,
@@ -12,13 +16,11 @@ class DiskStore
 
     # Spawn exactly 1 reaper for each cache path
     def self.spawn_for(path, opts = {})
-      return @reapers[path] if @reapers.has_key?(path)
-
-      reaper = Reaper.new(path, opts)
-      reaper.spawn!
-
-      @reapers[path] = reaper
-      reaper
+      return Celluloid::Actor[path] if !Celluloid::Actor[path].nil?
+      
+      Reaper.supervise_as(path, path, opts)
+      Celluloid::Actor[path].async.start!
+      Celluloid::Actor[path]
     end
 
     # Mostly useful for testing purposes
@@ -32,7 +34,6 @@ class DiskStore
     def initialize(path, opts = {})
       @path = path
       @options = DEFAULT_OPTS.merge(opts)
-      @thread = nil
 
       set_eviction_strategy(@options[:eviction_strategy])
     end
@@ -42,21 +43,11 @@ class DiskStore
       self.class.send :prepend, DiskStore::Reaper.const_get(strategy)
     end
 
-    def spawn!
-      @thread = Thread.new do
-        loop do
-          perform_sweep! if needs_eviction?
-          wait_for_next
-        end
+    def start!
+      loop do
+        perform_sweep! if needs_eviction?
+        wait_for_next
       end
-    end
-
-    def alive?
-      @thread && @thread.alive?
-    end
-
-    def running?
-      @thread && !@thread.stop?
     end
 
     private
