@@ -23,12 +23,6 @@ class DiskStore
       Celluloid::Actor[path]
     end
 
-    # Mostly useful for testing purposes
-    def self.kill_all!
-      @reapers.each { |path, reaper| reaper.thread.kill }
-      @reapers = {}
-    end
-
     attr_reader :path
 
     def initialize(path, opts = {})
