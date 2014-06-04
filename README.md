@@ -59,6 +59,9 @@ cache = DiskStore.new('cache/dir', eviction_strategy: :LRU)
 ```ruby
 cache = DiskStore.new
 cached_file = cache.read("my_cache_key") #=> File.open('somewhere_on_disk')
+
+# With MD5 validation
+cached_file = cache.read("my_cache_key", expected_md5)
 ```
 
 ### Writing
@@ -66,6 +69,9 @@ cached_file = cache.read("my_cache_key") #=> File.open('somewhere_on_disk')
 ```ruby
 cache = DiskStore.new
 cache.write("my_cache_key", File.open('file.psd', 'rb'))
+
+# With MD5 validation
+cache.write("my_cache_key", File.open("file.psd", 'rb'), expected_md5)
 ```
 
 ### Fetching
@@ -73,6 +79,11 @@ cache.write("my_cache_key", File.open('file.psd', 'rb'))
 ```ruby
 cache = DiskStore.new
 cache.fetch("my_cache_key") do
+  File.open('file.psd', 'rb')
+end
+
+# With MD5 validation
+cache.fetch("my_cache_key", expected_md5) do
   File.open('file.psd', 'rb')
 end
 ```
