@@ -62,17 +62,17 @@ class DiskStore
     true
   end
 
-  def fetch(key)
+  def fetch(key, md5 = nil)
     if block_given?
       if exist?(key)
-        read(key)
+        read(key, md5)
       else
         io = yield
-        write(key, io)
+        write(key, io, md5)
         read(key)
       end
     else
-      read(key)
+      read(key, md5)
     end
   end
 
