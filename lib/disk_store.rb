@@ -17,15 +17,20 @@ class DiskStore
     @reaper = Reaper.spawn_for(@root_path, @options)
   end
 
-  def read(key)
-    File.open(key_file_path(key), 'rb')
+  def read(key, md5 = nil)
+    fd = File.open(key_file_path(key), 'rb')
+    validate_file!(key_file_path(key), md5) if !md5.nil?
+    fd
+  rescue MD5DidNotMatch => e
+    delete(key)
+    raise e
   end
 
   def write(key, io, md5 = nil)
     file_path = key_file_path(key)
     ensure_cache_path(File.dirname(file_path))
 
-    File.open(file_path, 'wb') do |f|
+    fd = File.open(file_path, 'wb') do |f|
       begin
         f.flock File::LOCK_EX
         IO::copy_stream(io, f)
@@ -37,13 +42,11 @@ class DiskStore
       end
     end
 
-    if !md5.nil?
-      real_md5 = Digest::MD5.file(file_path).hexdigest
-      if md5 != real_md5
-        FileUtils.rm(file_path)
-        raise MD5DidNotMatch.new("MD5 mismatch. Expected: #{md5}, Actual: #{real_md5}")
-      end
-    end
+    validate_file!(file_path, md5) if !md5.nil?
+    fd
+  rescue MD5DidNotMatch => e
+    delete(key)
+    raise e
   end
 
   def exist?(key)
@@ -92,6 +95,13 @@ private
     end until fname.nil? || fname == ""
 
     File.join(@root_path, DIR_FORMATTER % dir_1, DIR_FORMATTER % dir_2, *fname_paths)
+  end
+
+  def validate_file!(file_path, md5)
+    real_md5 = Digest::MD5.file(file_path).hexdigest
+    if md5 != real_md5
+      raise MD5DidNotMatch.new("MD5 mismatch. Expected: #{md5}, Actual: #{real_md5}")
+    end
   end
 
   # Make sure a file path's directories exist.
