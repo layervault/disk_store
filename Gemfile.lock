@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    disk_store (0.3.0)
+    disk_store (0.4.0)
       celluloid
       rake
 
