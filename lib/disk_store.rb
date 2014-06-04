@@ -2,6 +2,8 @@ require 'open-uri'
 require 'disk_store/reaper'
 
 class DiskStore
+  class MD5DidNotMatch < StandardError; end
+
   DIR_FORMATTER = "%03X"
   FILENAME_MAX_SIZE = 228 # max filename size on file system is 255, minus room for timestamp and random characters appended by Tempfile (used by atomic write)
   EXCLUDED_DIRS = ['.', '..'].freeze
@@ -19,7 +21,7 @@ class DiskStore
     File.open(key_file_path(key), 'rb')
   end
 
-  def write(key, io)
+  def write(key, io, md5 = nil)
     file_path = key_file_path(key)
     ensure_cache_path(File.dirname(file_path))
 
@@ -32,6 +34,14 @@ class DiskStore
         # http://stackoverflow.com/questions/6701103/understanding-ruby-and-os-i-o-buffering
         f.fsync
         f.flock File::LOCK_UN
+      end
+    end
+
+    if !md5.nil?
+      real_md5 = Digest::MD5.file(file_path).hexdigest
+      if md5 != real_md5
+        FileUtils.rm(file_path)
+        raise MD5DidNotMatch.new("MD5 mismatch. Expected: #{md5}, Actual: #{real_md5}")
       end
     end
   end
