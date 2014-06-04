@@ -29,7 +29,7 @@ class DiskStore
       @reapers = {}
     end
 
-    attr_reader :path, :thread
+    attr_reader :path
 
     def initialize(path, opts = {})
       @path = path
