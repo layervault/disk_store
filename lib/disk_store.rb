@@ -56,7 +56,12 @@ class DiskStore
   def delete(key)
     file_path = key_file_path(key)
     if exist?(key)
-      File.delete(file_path)
+      begin
+        File.delete(file_path)
+      rescue Error::ENOENT
+        # Weirdness can happen with concurrency
+      end
+      
       delete_empty_directories(File.dirname(file_path))
     end
     true
