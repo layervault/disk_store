@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Cache fiels the smart way.}
   gem.homepage      = "http://cosmos.layervault.com/cache.html"
   gem.license       = 'MIT'
-  gem.required_ruby_version = ">= 2.0.0"
+  gem.required_ruby_version = ">= 1.9.3"
 
   gem.files         = `git ls-files`.split($/).delete_if { |f| f.include?('examples/') }
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

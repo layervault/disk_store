@@ -33,8 +33,8 @@ class DiskStore
     end
 
     def set_eviction_strategy(strategy)
-      return if strategy.nil?
-      self.class.send :prepend, DiskStore::Reaper.const_get(strategy)
+      strategy ||= :None
+      self.class.send :include, DiskStore::Reaper.const_get(strategy)
     end
 
     def start!
@@ -54,14 +54,6 @@ class DiskStore
 
     def needs_eviction?
       current_cache_size > maximum_cache_size
-    end
-
-    def files_to_evict
-      []
-    end
-
-    def directories_to_evict
-      []
     end
 
     def wait_for_next
