@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'open-uri'
 
 describe DiskStore do
   let(:cache) { DiskStore.new @tmpdir }
